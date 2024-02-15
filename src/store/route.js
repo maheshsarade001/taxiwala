@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 
 const routeStore = (set) => ({
   route: {
@@ -32,6 +32,6 @@ const routeStore = (set) => ({
   },
 });
 
-const useRouteStore = create(devtools(persist(routeStore)));
+const useRouteStore = create(devtools(routeStore));
 
 export default useRouteStore;

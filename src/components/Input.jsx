@@ -1,10 +1,8 @@
 import React from "react";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 
-const Input =
-  React.forwardRef <
-  HTMLInputElement >
-  ((
+const Input = React.forwardRef(
+  (
     {
       label,
       placeholder,
@@ -46,15 +44,19 @@ const Input =
         {error && <span className="text-red-500 block">{error?.message}</span>}
       </div>
     );
-  });
+  }
+);
 
 Input.displayName = "Input";
-
-// Input.propTypes = {
-//   error: PropTypes.string,
-//   label: PropTypes.string.isRequired,
-//   placeholder: PropTypes.string,
-//   onChange: PropTypes.func,
-// };
+Input.propTypes = {
+  label: PropTypes.string,
+  isRequired: PropTypes.func,
+  placeholder: PropTypes.string,
+  onChange: PropTypes.func,
+  error: PropTypes.object,
+  type: PropTypes.string,
+  warpperClass: PropTypes.string,
+  endIcon: PropTypes.object,
+};
 
 export default Input;
