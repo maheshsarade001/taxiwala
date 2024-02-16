@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 
 const stepStore = (set) => ({
   current: "Form",
@@ -12,6 +12,6 @@ const stepStore = (set) => ({
   },
 });
 
-const useStepStore = create(devtools(persist(stepStore)));
+const useStepStore = create(devtools(stepStore));
 
 export default useStepStore;
