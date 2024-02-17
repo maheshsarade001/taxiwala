@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Autocomplete, DirectionsService } from "@react-google-maps/api";
 import Button from "./Button";
 import Input from "./Input";
-import geocode from "react-geocode";
+import { setKey, fromLatLng } from "react-geocode";
 import useStepStore from "../store/step";
 import useRouteStore from "../store/route";
 import toast, { Toaster } from "react-hot-toast";
@@ -11,6 +11,16 @@ import { MapPinIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 
 const BookingForm = () => {
+  const date = new Date();
+
+  // Format the date and time using template literals
+  const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}T${date
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+
   const {
     register,
     handleSubmit,
@@ -20,7 +30,7 @@ const BookingForm = () => {
     defaultValues: {
       source: "",
       destination: "",
-      pickupTime: new Date().toISOString().substring(0, 16),
+      pickupTime: formattedDate,
     },
   });
 
@@ -49,14 +59,14 @@ const BookingForm = () => {
     let lat = position.coords.latitude;
     let lng = position.coords.longitude;
 
-    geocode.setKey(import.meta.env.VITE_APP_MAP_API_KEY);
-    geocode.fromLatLng(lat, lng).then(
+    setKey(import.meta.env.VITE_APP_MAP_API_KEY);
+    fromLatLng(lat, lng).then(
       (response) => {
-        console.log(response),
-          setValue("source", response.results[0].formatted_address);
+        setValue("source", response.results[0].formatted_address);
       },
       (error) => {
         console.log(error);
+        toast.error("Location detection failed!");
       }
     );
   };
@@ -83,7 +93,7 @@ const BookingForm = () => {
     } catch (error) {
       console.log(error);
       toast.error(
-        e.code === "ZERO_RESULTS"
+        error.code === "ZERO_RESULTS"
           ? "No route could be found between the origin and destination."
           : " Something went wrong!"
       );
@@ -92,7 +102,6 @@ const BookingForm = () => {
 
   const getTollPrice = (results) => {
     setLoading(true);
-
     axios
       .post(
         "https://dev.tollguru.com/v1/calc/here",
@@ -134,59 +143,60 @@ const BookingForm = () => {
         console.log(error);
       });
   };
-  return (
-    <div className="absolute top-24 left-7">
-      <div className="bg-white py-9 px-2 w-80 rounded-lg shadow hover:shadow-xl">
-        <h1 className="text-3xl font-bold leading-10 mt-0 mb-6 underline-offset-2 underline text-center">
-          TAXIWALA
-        </h1>
-        <Autocomplete>
+  if (current === "Form")
+    return (
+      <div className="absolute top-24 left-7">
+        <div className="bg-white py-9 px-2 w-80 rounded-lg shadow hover:shadow-xl">
+          <h1 className="text-3xl font-bold leading-10 mt-0 mb-6 underline-offset-2 underline text-center">
+            TAXIWALA
+          </h1>
+          <Autocomplete>
+            <Input
+              label="Source"
+              {...register("source", {
+                required: {
+                  value: true,
+                  message: "Please enter a source",
+                },
+              })}
+              endIcon={
+                <MapPinIcon
+                  className="w-6 mr-2 cursor-pointer"
+                  onClick={checkLocationAccess}
+                />
+              }
+              error={errors.source}
+            />
+          </Autocomplete>
+          <Autocomplete>
+            <Input
+              label="destination"
+              {...register("destination", {
+                required: {
+                  value: true,
+                  message: "Please enter a destination",
+                },
+              })}
+              error={errors.destination}
+            />
+          </Autocomplete>
           <Input
-            label="Source"
-            {...register("source", {
+            label="Pickup Date & Time"
+            {...register("pickupTime", {
               required: {
                 value: true,
-                message: "Please enter a source",
+                message: "Please select Pickup Date & Time",
               },
             })}
-            endIcon={
-              <MapPinIcon
-                className="w-6 mr-2 cursor-pointer"
-                onClick={checkLocationAccess}
-              />
-            }
-            error={errors.source}
+            type="datetime-local"
+            min={formattedDate}
           />
-        </Autocomplete>
-        <Autocomplete>
-          <Input
-            label="destination"
-            {...register("destination", {
-              required: {
-                value: true,
-                message: "Please enter a destination",
-              },
-            })}
-            error={errors.destination}
-          />
-        </Autocomplete>
-        <Input
-          label="Pickup Date & Time"
-          {...register("pickupTime", {
-            required: {
-              value: true,
-              message: "Please select Pickup Date & Time",
-            },
-          })}
-          type="datetime-local"
-          min={new Date().toISOString().substring(0, 16)}
-        />
-        <Button className="w-full" onClick={handleSubmit(calculateRoute)}>
-          Check Fare
-        </Button>
+          <Button className="w-full" onClick={handleSubmit(calculateRoute)}>
+            Check Fare
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
 };
 
 export default BookingForm;

@@ -6,6 +6,7 @@ import {
 import useRouteStore from "./store/route.js";
 import BookingForm from "./components/BookingForm";
 import { Toaster } from "react-hot-toast";
+import Book from "./components/Book.jsx";
 
 const center = { lat: 18.4669, lng: 73.7766 };
 const libraries = ["places"];
@@ -40,6 +41,7 @@ function App() {
             </GoogleMap>
           </div>
           <BookingForm />
+          <Book />
         </div>
       </>
     );
