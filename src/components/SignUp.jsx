@@ -4,10 +4,12 @@ import Input from "./Input";
 import Button from "./Button";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/auth";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignUp = () => {
-  const { createUser } = useAuthStore();
+  const { setUser, user } = useAuthStore();
   const navigate = useNavigate();
 
   const {
@@ -25,18 +27,25 @@ const SignUp = () => {
 
   const onSubmit = async (data) => {
     try {
-      await createUser(data.email, data.password);
+      const userDetails = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const User = userDetails.user;
+      setUser({ User });
       toast.success(`Hello ${data.name}, your account created successfully`);
       reset();
       navigate("/home");
     } catch (error) {
-      toast.success(error.message);
-      console.log("Error creating user:", error.message);
+      toast.error(error.message);
+      console.log("Error creating user:", error);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-green-400 px-4 sm:px-6 lg:px-8">
+      <Toaster />
       <h1 className="text-4xl font-extrabold text-white mb-8">TAXIWALA</h1>
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
         <div>

@@ -5,9 +5,11 @@ import Button from "./Button";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/auth";
 import toast, { Toaster } from "react-hot-toast";
+import { auth } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const SignIn = () => {
-  const { login } = useAuthStore();
+  const { setUser, user } = useAuthStore();
   const navigate = useNavigate();
   const {
     register,
@@ -23,12 +25,22 @@ const SignIn = () => {
 
   const onSubmit = async (data) => {
     try {
-      await login(data.email, data.password);
+      const userDetails = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const User = userDetails.user;
+      setUser({ User });
       toast.success("Login successfully");
       reset();
       navigate("/home");
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.message === "Firebase: Error (auth/invalid-credential)."
+          ? "Email & Password is incorrect!"
+          : "Something went wrong"
+      );
       console.log(error);
     }
   };

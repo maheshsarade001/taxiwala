@@ -80,7 +80,6 @@ const BookingForm = () => {
         destination: data.destination,
         travelMode: google.maps.TravelMode.DRIVING,
       });
-      console.log(results, "Results");
       getTollPrice(results);
       setDirection(results);
       setRoute({
@@ -123,16 +122,13 @@ const BookingForm = () => {
         }
       )
       .then((res) => {
-        console.log(res, "res");
         setLoading(false);
         let tolls = [];
         res?.data?.routes?.map((route) => {
           tolls.push(...route.tolls);
         });
         let totalToll = 0;
-        console.log(tolls, "tolls");
         tolls.map((toll) => {
-          console.log(toll.tagCost, "toll");
           totalToll = totalToll + toll?.tagCost;
         });
         setRoute({

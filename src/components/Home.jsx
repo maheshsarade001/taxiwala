@@ -9,6 +9,8 @@ import toast, { Toaster } from "react-hot-toast";
 import Book from "./Book.jsx";
 import useAuthStore from "../store/auth.js";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase.js";
+import { signOut } from "firebase/auth";
 
 const center = { lat: 18.4669, lng: 73.7766 };
 const libraries = ["places"];
@@ -17,11 +19,11 @@ const Home = () => {
   const navigate = useNavigate();
 
   // Logout function
-  const { logout } = useAuthStore();
-
+  const { setUser } = useAuthStore();
   const handleLogout = async () => {
     try {
-      await logout();
+      await signOut(auth);
+      setUser(null);
       navigate("/");
     } catch (error) {
       console.log(error);
